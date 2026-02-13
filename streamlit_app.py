@@ -83,6 +83,8 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("### 📦 集装箱参数")
+    container_volume = st.number_input("20HQ体积 (CBM)", value=33, step=0.1)
+    container_weight = st.number_input("20HQ限重 (KG)", value=21000, step=100)
     container_volume = st.number_input("40HQ体积 (CBM)", value=67.7, step=0.1)
     container_weight = st.number_input("40HQ限重 (KG)", value=26000, step=100)
     
@@ -313,7 +315,7 @@ st.markdown("---")
 st.markdown(
     """
     <div style="text-align: center; color: #666; padding: 1rem;">
-        <p>© 2024 郑秀英国际贸易有限公司 · 智能出口报价系统 v2.0</p>
+        <p>© 2026 郑秀英国际贸易有限公司 · 智能出口报价系统 v2.0</p>
         <p style="font-size: 0.875rem;">✅ 已修复plotly依赖问题 · 所有数据实时计算</p>
     </div>
     """, 
