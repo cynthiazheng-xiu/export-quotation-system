@@ -83,8 +83,7 @@ with st.sidebar:
     
     st.markdown("---")
     st.markdown("### 📦 集装箱参数")
-    container_volume = st.number_input("20HQ体积 (CBM)", value=33, step=0.1)
-    container_weight = st.number_input("20HQ限重 (KG)", value=21000, step=100)
+    
     container_volume = st.number_input("40HQ体积 (CBM)", value=67.7, step=0.1)
     container_weight = st.number_input("40HQ限重 (KG)", value=26000, step=100)
     
