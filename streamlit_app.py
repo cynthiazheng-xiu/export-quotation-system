@@ -1,0 +1,268 @@
+import streamlit as st
+import pandas as pd
+import math
+from datetime import datetime
+import plotly.graph_objects as go
+import plotly.express as px
+
+# 页面配置
+st.set_page_config(
+    page_title="平尼克国际贸易 - 智能出口报价系统",
+    page_icon="🇨🇳",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
+
+# 自定义CSS样式
+st.markdown("""
+<style>
+    .main-header {
+        background: linear-gradient(90deg, #0a2463 0%, #1e3a8a 100%);
+        padding: 2rem;
+        border-radius: 20px;
+        color: white;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+    .card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+    .profit-card {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 16px;
+        text-align: center;
+    }
+    .metric-value {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0.5rem 0;
+    }
+    .metric-label {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+</style>
+""", unsafe_allow_html=True)
+
+# 头部
+st.markdown("""
+<div class="main-header">
+    <h1 style="margin:0; font-size:3rem;">🇨🇳 平尼克国际贸易</h1>
+    <p style="margin:0.5rem 0 0 0; font-size:1.2rem; opacity:0.9;">Pinic International Trading · 智能出口报价引擎</p>
+</div>
+""", unsafe_allow_html=True)
+
+# 侧边栏 - 参数设置
+with st.sidebar:
+    st.markdown("## ⚙️ 参数设置")
+    
+    # 汇率设置
+    exchange_rate = st.number_input("💱 美元汇率 (USD/CNY)", 
+                                   value=7.2, 
+                                   min_value=6.0, 
+                                   max_value=8.0, 
+                                   step=0.1,
+                                   help="1美元 = ? 人民币")
+    
+    # 利润率设置
+    profit_rate = st.number_input("📈 目标利润率 (%)", 
+                                 value=20.0, 
+                                 min_value=0.0, 
+                                 max_value=100.0, 
+                                 step=1.0) / 100
+    
+    st.markdown("---")
+    st.markdown("### 📦 集装箱参数")
+    container_volume = st.number_input("40HQ体积 (CBM)", value=67.7, step=0.1)
+    container_weight = st.number_input("40HQ限重 (KG)", value=26000, step=100)
+    
+    st.markdown("---")
+    st.markdown("### 💰 费用参数")
+    domestic_fee_base = st.number_input("国内运费基础 (¥)", value=3000, step=100)
+    domestic_fee_per = st.number_input("每柜国内运费 (¥)", value=1500, step=100)
+    freight_usd = st.number_input("海运费 (USD/柜)", value=1000, step=50)
+
+# 主界面 - 两列布局
+col1, col2 = st.columns(2)
+
+with col1:
+    st.markdown("### 📋 客户询盘信息")
+    customer = st.text_input("客户名称", "Abdul Jaleel Trading")
+    country = st.text_input("目的国家", "菲律宾")
+    port = st.text_input("目的港口", "马尼拉港")
+    incoterm = st.selectbox("贸易术语", ["CIP", "FOB", "CIF", "EXW", "DAP"])
+
+with col2:
+    st.markdown("### 📦 商品信息")
+    product_name = st.text_input("商品名称", "自动售货机 MF-782")
+    hs_code = st.text_input("HS编码", "84762100")
+    
+    col_vol, col_weight = st.columns(2)
+    with col_vol:
+        volume = st.number_input("单件体积 (CBM)", value=2.55, min_value=0.01, step=0.1)
+    with col_weight:
+        weight = st.number_input("单件毛重 (KG)", value=280.0, min_value=0.1, step=10.0)
+    
+    col_price, col_qty = st.columns(2)
+    with col_price:
+        purchase_price = st.number_input("采购单价 (¥)", value=4778.0, min_value=0.01, step=100.0)
+    with col_qty:
+        quantity = st.number_input("数量 (台)", value=29, min_value=1, step=1)
+
+# 计算按钮
+col_btn1, col_btn2, col_btn3 = st.columns([1, 1, 2])
+with col_btn1:
+    calculate = st.button("🚀 开始智能计算", type="primary", use_container_width=True)
+
+# 计算结果
+if calculate:
+    # 基础计算
+    total_volume = volume * quantity
+    total_weight = weight * quantity
+    
+    # 集装箱计算
+    containers_by_volume = math.ceil(total_volume / container_volume)
+    containers_by_weight = math.ceil(total_weight / container_weight)
+    containers = max(containers_by_volume, containers_by_weight)
+    
+    # 费用计算
+    purchase_total = purchase_price * quantity
+    tax_rebate = purchase_total / 1.13 * 0.13  # 13%退税
+    domestic_fee = domestic_fee_base + domestic_fee_per * containers
+    intl_freight = freight_usd * exchange_rate * containers
+    insurance = (purchase_total + intl_freight) * 1.1 * 0.002  # 0.2%保险费
+    tariff = purchase_total * 0.05  # 5%关税
+    
+    # 成本计算
+    total_cost = purchase_total - tax_rebate + domestic_fee + intl_freight + insurance + tariff
+    
+    # 利润计算
+    target_profit = total_cost * profit_rate
+    contract_amount = total_cost + target_profit
+    unit_price_usd = contract_amount / quantity / exchange_rate
+    
+    # 显示结果 - 三列卡片
+    st.markdown("### 🤖 智能分析结果")
+    
+    res_col1, res_col2, res_col3 = st.columns(3)
+    
+    with res_col1:
+        st.markdown("""
+        <div class="card">
+            <h4 style="color:#0a2463; margin-bottom:1rem;">📦 装箱推荐</h4>
+        """, unsafe_allow_html=True)
+        st.metric("集装箱类型", "40HQ 高柜")
+        st.metric("需要集装箱", f"{containers} 个")
+        st.metric("总体积", f"{total_volume:.2f} CBM")
+        st.markdown("</div>", unsafe_allow_html=True)
+    
+    with res_col2:
+        st.markdown("""
+        <div class="card">
+            <h4 style="color:#0a2463; margin-bottom:1rem;">💰 报价建议</h4>
+        """, unsafe_allow_html=True)
+        st.metric("FOB单价 (USD)", f"USD {unit_price_usd:,.2f}")
+        st.metric("合同总额 (CNY)", f"¥{contract_amount:,.2f}")
+        st.metric("利润率", f"{profit_rate*100:.1f}%")
+        st.markdown("</div>", unsafe_allow_html=True)
+    
+    with res_col3:
+        st.markdown("""
+        <div class="card">
+            <h4 style="color:#0a2463; margin-bottom:1rem;">📊 成本分析</h4>
+        """, unsafe_allow_html=True)
+        st.metric("采购总价", f"¥{purchase_total:,.2f}")
+        st.metric("总成本", f"¥{total_cost:,.2f}")
+        st.metric("预计利润", f"¥{target_profit:,.2f}")
+        st.markdown("</div>", unsafe_allow_html=True)
+    
+    # 预算表
+    st.markdown("### 📊 出口预算表（单位：人民币）")
+    
+    budget_data = {
+        '项目': ['采购总价', '出口退税', '国内运费', '国际运费', '保险费', '出口关税', '总成本', '合同金额'],
+        '金额': [
+            f"¥{purchase_total:,.2f}",
+            f"-¥{tax_rebate:,.2f}",
+            f"¥{domestic_fee:,.2f}",
+            f"¥{intl_freight:,.2f}",
+            f"¥{insurance:,.2f}",
+            f"¥{tariff:,.2f}",
+            f"¥{total_cost:,.2f}",
+            f"¥{contract_amount:,.2f}"
+        ]
+    }
+    
+    df = pd.DataFrame(budget_data)
+    st.dataframe(df, use_container_width=True, hide_index=True)
+    
+    # 利润卡片
+    profit_col1, profit_col2, profit_col3 = st.columns(3)
+    
+    with profit_col1:
+        st.markdown(f"""
+        <div class="profit-card">
+            <div class="metric-label">💰 预计利润</div>
+            <div class="metric-value">¥{target_profit:,.2f}</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with profit_col2:
+        st.markdown(f"""
+        <div class="profit-card">
+            <div class="metric-label">📈 利润率</div>
+            <div class="metric-value">{profit_rate*100:.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with profit_col3:
+        roi = (target_profit / purchase_total) * 100
+        st.markdown(f"""
+        <div class="profit-card">
+            <div class="metric-label">🔄 投资回报率</div>
+            <div class="metric-value">{roi:.1f}%</div>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # 成本构成图
+    st.markdown("### 📈 成本构成分析")
+    
+    fig_data = {
+        '项目': ['采购成本(税后)', '国内运费', '国际运费', '保险费', '关税'],
+        '金额': [
+            purchase_total - tax_rebate,
+            domestic_fee,
+            intl_freight,
+            insurance,
+            tariff
+        ]
+    }
+    
+    fig = px.pie(fig_data, values='金额', names='项目', 
+                 title='总成本构成',
+                 color_discrete_sequence=px.colors.sequential.Blues_r)
+    fig.update_traces(textposition='inside', textinfo='percent+label')
+    st.plotly_chart(fig, use_container_width=True)
+    
+    # 生成报价单按钮
+    if st.button("📄 生成正式报价单", use_container_width=True):
+        st.success("✅ 报价单已生成！(演示版)")
+        st.balloons()
+
+# 页脚
+st.markdown("---")
+st.markdown(
+    """
+    <div style="text-align: center; color: #666; padding: 1rem;">
+        <p>© 2024 平尼克国际贸易有限公司 · 智能出口报价系统 v1.0</p>
+        <p style="font-size: 0.875rem;">所有数据实时计算 · 无需安装Python</p>
+    </div>
+    """, 
+    unsafe_allow_html=True
+)
