@@ -58,8 +58,8 @@ st.markdown("""
 # 头部
 st.markdown("""
 <div class="main-header">
-    <h1 style="margin:0; font-size:3rem;">🇨🇳 郑秀英国际贸易</h1>
-    <p style="margin:0.5rem 0 0 0; font-size:1.2rem; opacity:0.9;">Pinic International Trading · 智能出口报价引擎</p>
+    <h1 style="margin:0; font-size:3rem;">🇨🇳 郑秀英际贸易</h1>
+    <p style="margin:0.5rem 0 0 0; font-size:1.2rem; opacity:0.9;">ABC Trading · AI价到-小微外贸智能出口报价引擎</p>
 </div>
 """, unsafe_allow_html=True)
 
@@ -99,7 +99,7 @@ with st.sidebar:
         container_volume = 67.7     # 40HQ体积 (CBM)
         container_weight = 26000     # 40HQ限重 (KG)
     elif "40FQ" in container_type:
-        container_volume = 679.7     # 40FQ体积 (CBM)
+        container_volume = 69.7     # 40FQ体积 (CBM)
         container_weight = 29000     # 40FQ限重 (KG)
     
     # 只显示信息，不提供输入框
