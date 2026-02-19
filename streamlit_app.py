@@ -95,10 +95,10 @@ with st.sidebar:
     if "20HQ" in container_type:
         container_volume = 28.0    # 20HQ体积 (CBM)
         container_weight = 22000    # 20HQ限重 (KG)
-    else:  # 40HQ
+    elsif:  # 40HQ
         container_volume = 67.7     # 40HQ体积 (CBM)
         container_weight = 26000     # 40HQ限重 (KG)
-    else:  # 40FQ
+    elsif:  # 40FQ
         container_volume = 67.7     # 40FQ体积 (CBM)
         container_weight = 26000     # 40FQ限重 (KG)
     
