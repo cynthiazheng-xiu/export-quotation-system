@@ -5,7 +5,7 @@ from datetime import datetime
 
 # 页面配置
 st.set_page_config(
-    page_title="郑秀英国际贸易 - 智能出口报价系统",
+    page_title="AI价到 - 小微外贸智能出口报价系统",
     page_icon="🇨🇳",
     layout="wide",
     initial_sidebar_state="expanded"
