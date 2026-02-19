@@ -84,8 +84,26 @@ with st.sidebar:
     st.markdown("---")
     st.markdown("### 📦 集装箱参数")
     
-    container_volume = st.number_input("40HQ体积 (CBM)", value=67.7, step=0.1)
-    container_weight = st.number_input("40HQ限重 (KG)", value=26000, step=100)
+    # ✅ 用户只选择类型，不输入数值
+    container_type = st.selectbox(
+        "选择集装箱类型",
+        options=["20HQ (28 CBM / 22吨)", "40HQ (67.7 CBM / 26吨)"],
+        index=1  # 默认40HQ
+    )
+    
+    # ✅ 后台代码定义体积和重量（在这里可以随时修改）
+    if "20HQ" in container_type:
+        container_volume = 28.0    # 20HQ体积 (CBM)
+        container_weight = 22000    # 20HQ限重 (KG)
+    else:  # 40HQ
+        container_volume = 67.7     # 40HQ体积 (CBM)
+        container_weight = 26000     # 40HQ限重 (KG)
+    else:  # 40FQ
+        container_volume = 67.7     # 40FQ体积 (CBM)
+        container_weight = 26000     # 40FQ限重 (KG)
+    
+    # 只显示信息，不提供输入框
+    st.info(f"📊 {container_type} - 体积: {container_volume} CBM, 限重: {container_weight/1000:.1f}吨")
     
     st.markdown("---")
     st.markdown("### 💰 费用参数")
