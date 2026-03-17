@@ -58,7 +58,7 @@ st.markdown("""
 # 头部
 st.markdown("""
 <div class="main-header">
-    <h1 style="margin:0; font-size:3rem;">🇨🇳 郑秀英际贸易</h1>
+    <h1 style="margin:0; font-size:3rem;">🇨🇳 极速出海</h1>
     <p style="margin:0.5rem 0 0 0; font-size:1.2rem; opacity:0.9;">ABC Trading · AI价到-小微外贸智能出口报价引擎</p>
 </div>
 """, unsafe_allow_html=True)
@@ -332,7 +332,7 @@ st.markdown("---")
 st.markdown(
     """
     <div style="text-align: center; color: #666; padding: 1rem;">
-        <p>© 2026 郑秀英国际贸易有限公司 · 智能出口报价系统 v2.0</p>
+        <p>© 2026 ABC国际贸易有限公司 · 智能出口报价系统 v2.0</p>
         <p style="font-size: 0.875rem;">✅ 已修复plotly依赖问题 · 所有数据实时计算</p>
     </div>
     """, 
